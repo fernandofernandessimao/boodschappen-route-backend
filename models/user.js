@@ -1,7 +1,6 @@
 "use strict";
 
 const { Model } = require("sequelize");
-const artwork = require("./artwork");
 module.exports = (sequelize, DataTypes) => {
   class user extends Model {
     /**
@@ -10,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      user.hasMany(artwork)
+      user.hasMany(models.artwork);   
     }
   }
   user.init(

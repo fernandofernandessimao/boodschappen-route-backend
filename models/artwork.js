@@ -1,7 +1,5 @@
 "use strict";
 const { Model } = require("sequelize");
-const bid = require("./bid");
-const user = require("./user");
 module.exports = (sequelize, DataTypes) => {
   class artwork extends Model {
     /**
@@ -10,8 +8,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      artwork.belongsTo(user);
-      artwork.hasMany(bid);
+      artwork.belongsTo(models.user);
+      artwork.hasMany(models.bid);
     }
   }
   artwork.init(

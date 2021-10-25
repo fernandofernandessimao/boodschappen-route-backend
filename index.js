@@ -4,6 +4,7 @@ const corsMiddleWare = require("cors");
 const { PORT } = require("./config/constants");
 const authRouter = require("./routers/auth");
 const authMiddleWare = require("./auth/middleware");
+const { user, artwork, bid } = require("./models");
 
 const app = express();
 /**
@@ -93,8 +94,15 @@ if (process.env.DELAY) {
  */
 
 // GET endpoint for testing purposes, can be removed
-app.get("/", (req, res) => {
-  res.send("Hi from express");
+app.get("/", async (req, res, next) => {
+  try {
+    const artworks = await artwork.findAll({
+      include: [{ model: bid }],
+    });
+    res.send(artworks.map((artwork) => artwork.toJSON()));
+  } catch (e) {
+    next(e);
+  }
 });
 
 // POST endpoint for testing purposes, can be removed
