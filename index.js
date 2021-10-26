@@ -93,13 +93,26 @@ if (process.env.DELAY) {
  * DEFINE YOUR ROUTES AFTER THIS MESSAGE (now that middlewares are configured)
  */
 
-// GET endpoint for testing purposes, can be removed
+// GET endpoint to list all artworks
 app.get("/", async (req, res, next) => {
   try {
     const artworks = await artwork.findAll({
-      include: [{ model: bid }],
+      include: { model: bid },
     });
     res.send(artworks.map((artwork) => artwork.toJSON()));
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.get("/artworks/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const artworkDetails = await artwork.findByPk(id, {
+      include: { model: bid },
+    });
+    //console.log("details", artworkDetails.toJSON());
+    res.status(200).send({ ...artworkDetails.toJSON() });
   } catch (e) {
     next(e);
   }
