@@ -118,6 +118,18 @@ app.get("/artworks/:id", async (req, res, next) => {
   }
 });
 
+app.patch("/artworks/:id/hearts/:h", async (req, res, next) => {
+  try {
+    const { id, h } = req.params;
+    const updateArtwork = await artwork.findByPk(id);
+    const hearts = await updateArtwork.update({ hearts: h });
+    res.status(200).send(updateArtwork);
+    
+  } catch (e) {
+    next(e);
+  }
+});
+
 // POST endpoint for testing purposes, can be removed
 app.post("/echo", (req, res) => {
   res.json({
