@@ -1,8 +1,9 @@
 const bcrypt = require("bcrypt");
 const { Router } = require("express");
-const { toJWT } = require("../auth/jwt");
+const { toJWT, toData } = require("../auth/jwt");
 const authMiddleware = require("../auth/middleware");
 const User = require("../models/").user;
+const Artwork = require("../models/").artwork;
 const { SALT_ROUNDS } = require("../config/constants");
 
 const router = new Router();
@@ -64,6 +65,34 @@ router.post("/signup", async (req, res) => {
     return res.status(400).send({ message: "Something went wrong, sorry" });
   }
 });
+
+// router.post("/auction", async (req, res) => {
+//   const { title, imageUrl, minimumBid } = req.body;
+
+//   if (!title || !imageUrl || !minimumBid) {
+//     return res
+//       .status(400)
+//       .send("Please provide an title, imageUrl and a minimum bid");
+//   }
+//   try {
+//     const newArtwork = await Artwork.create({
+//       title,
+//       userId: 1,
+//       imageUrl,
+//       minimumBid,
+//     });
+
+//     res.status(201).send(...newArtwork);
+//   } catch (error) {
+//     if (error.name === "SequelizeUniqueConstraintError") {
+//       return res
+//         .status(400)
+//         .send({ message: "There is an existing account with this email" });
+//     }
+
+//     return res.status(400).send({ message: "Something went wrong, sorry" });
+//   }
+// });
 
 // The /me endpoint can be used to:
 // - get the users email & name using only their token

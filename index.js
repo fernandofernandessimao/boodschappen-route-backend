@@ -104,39 +104,74 @@ app.get("/", async (req, res, next) => {
     next(e);
   }
 });
-
+// get details of a specified artwork
 app.get("/artworks/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const artworkDetails = await artwork.findByPk(id, {
+    const artworkDetails = await artwork.findByPk(parseInt(id), {
       include: { model: bid },
     });
-    //console.log("details", artworkDetails.toJSON());
-    res.status(200).send({ ...artworkDetails.toJSON() });
+    console.log("details", artworkDetails.toJSON());
+    res.status(200).send(artworkDetails.toJSON());
   } catch (e) {
     next(e);
   }
 });
-
+// increase amount of hearts of an artwork
 app.patch("/artworks/:id/hearts/:h", async (req, res, next) => {
   try {
     const { id, h } = req.params;
     const updateArtwork = await artwork.findByPk(id);
     const hearts = await updateArtwork.update({ hearts: h });
     res.status(200).send(updateArtwork);
-    
+  } catch (e) {
+    next(e);
+  }
+});
+// create a bid
+app.post("/artworks/:id/bid", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { email, amount, artworkId } = req.body;
+    const newBid = await bid.create({
+      email,
+      amount,
+      artworkId,
+    });
+    res.status(200).send(newBid.dataValues);
+    console.log(newBid.dataValues);
   } catch (e) {
     next(e);
   }
 });
 
-// POST endpoint for testing purposes, can be removed
-app.post("/echo", (req, res) => {
-  res.json({
-    youPosted: {
-      ...req.body,
-    },
-  });
+app.post("/auction/:userId", async (req, res) => {
+  const { title, imageUrl, minimumBid } = req.body;
+  const { userId } = req.params;
+
+  if (!title || !imageUrl || !minimumBid) {
+    return res
+      .status(400)
+      .send("Please provide an title, imageUrl and a minimum bid");
+  }
+  try {
+    console.log(`before\n`);
+    const newArtwork = await artwork.create({
+      title,
+      userId,
+      imageUrl,
+      minimumBid,
+    });    
+    res.status(201).send(newArtwork.dataValues);    
+  } catch (error) {
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res
+        .status(400)
+        .send({ message: "There is an existing account with this email" });
+    }
+
+    return res.status(400).send({ message: "Something went wrong, sorry" });
+  }
 });
 
 // POST endpoint which requires a token for testing purposes, can be removed
