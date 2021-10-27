@@ -129,7 +129,7 @@ app.patch("/artworks/:id/hearts/:h", async (req, res, next) => {
   }
 });
 // create a bid
-app.post("/artworks/:id/bid", async (req, res, next) => {
+app.post("/artworks/:id/bid", authMiddleWare, async (req, res, next) => {
   try {
     const { id } = req.params;
     const { email, amount, artworkId } = req.body;
@@ -145,7 +145,7 @@ app.post("/artworks/:id/bid", async (req, res, next) => {
   }
 });
 
-app.post("/auction/:userId", async (req, res) => {
+app.post("/auction/:userId", authMiddleWare, async (req, res) => {
   const { title, imageUrl, minimumBid } = req.body;
   const { userId } = req.params;
 
@@ -155,14 +155,13 @@ app.post("/auction/:userId", async (req, res) => {
       .send("Please provide an title, imageUrl and a minimum bid");
   }
   try {
-    console.log(`before\n`);
     const newArtwork = await artwork.create({
       title,
       userId,
       imageUrl,
       minimumBid,
-    });    
-    res.status(201).send(newArtwork.dataValues);    
+    });
+    res.status(201).send(newArtwork.dataValues);
   } catch (error) {
     if (error.name === "SequelizeUniqueConstraintError") {
       return res
