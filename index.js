@@ -4,7 +4,7 @@ const corsMiddleWare = require("cors");
 const { PORT } = require("./config/constants");
 const authRouter = require("./routers/auth");
 const authMiddleWare = require("./auth/middleware");
-const { user, artwork, bid } = require("./models");
+const { category, product, list, shoppingList } = require("./models");
 
 const app = express();
 /**
@@ -93,102 +93,136 @@ if (process.env.DELAY) {
  * DEFINE YOUR ROUTES AFTER THIS MESSAGE (now that middlewares are configured)
  */
 
-// GET endpoint to list all artworks
-app.get("/", async (req, res, next) => {
+// testing ending points
+app.get("/products", async (req, res, next) => {
   try {
-    const artworks = await artwork.findAll({
-      include: { model: bid },
+    const products = await product.findAll({
+      include: [{ all: true, nested: true }],
     });
-    res.send(artworks.map((artwork) => artwork.toJSON()));
-  } catch (e) {
-    next(e);
-  }
-});
-// get details of a specified artwork
-app.get("/artworks/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const artworkDetails = await artwork.findByPk(parseInt(id), {
-      include: { model: bid },
-    });
-    console.log("details", artworkDetails.toJSON());
-    res.status(200).send(artworkDetails.toJSON());
-  } catch (e) {
-    next(e);
-  }
-});
-// increase amount of hearts of an artwork
-app.patch("/artworks/:id/hearts/:h", async (req, res, next) => {
-  try {
-    const { id, h } = req.params;
-    const updateArtwork = await artwork.findByPk(id);
-    const hearts = await updateArtwork.update({ hearts: h });
-    res.status(200).send(updateArtwork);
-  } catch (e) {
-    next(e);
-  }
-});
-// create a bid
-app.post("/artworks/:id/bid", authMiddleWare, async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { email, amount, artworkId } = req.body;
-    const newBid = await bid.create({
-      email,
-      amount,
-      artworkId,
-    });
-    res.status(200).send(newBid.dataValues);
-    console.log(newBid.dataValues);
+    res.send(products.map((product) => product.toJSON()));
   } catch (e) {
     next(e);
   }
 });
 
-app.post("/auction/:userId", authMiddleWare, async (req, res) => {
-  const { title, imageUrl, minimumBid } = req.body;
-  const { userId } = req.params;
-
-  if (!title || !imageUrl || !minimumBid) {
-    return res
-      .status(400)
-      .send("Please provide an title, imageUrl and a minimum bid");
-  }
+app.get("/categories", async (req, res, next) => {
   try {
-    const newArtwork = await artwork.create({
-      title,
-      userId,
-      imageUrl,
-      minimumBid,
-    });
-    res.status(201).send(newArtwork.dataValues);
-  } catch (error) {
-    if (error.name === "SequelizeUniqueConstraintError") {
-      return res
-        .status(400)
-        .send({ message: "There is an existing account with this email" });
-    }
-
-    return res.status(400).send({ message: "Something went wrong, sorry" });
+    const categories = await category.findAll();
+    res.send(categories.map((category) => category.toJSON()));
+  } catch (e) {
+    next(e);
   }
 });
 
-// POST endpoint which requires a token for testing purposes, can be removed
-app.post("/authorized_post_request", authMiddleWare, (req, res) => {
-  // accessing user that was added to req by the auth middleware
-  const user = req.user;
-  // don't send back the password hash
-  delete user.dataValues["password"];
-
-  res.json({
-    youPosted: {
-      ...req.body,
-    },
-    userFoundWithToken: {
-      ...user.dataValues,
-    },
-  });
+app.get("/shoppinglists", async (req, res, next) => {
+  try {
+    const shoppinglists = await shoppingList.findAll({
+      include: [{ all: true, nested: true }],
+    });
+    res.send(shoppinglists.map((shoppinglist) => shoppinglist.toJSON()));
+  } catch (e) {
+    next(e);
+  }
 });
+
+app.get("/lists", async (req, res, next) => {
+  try {
+    const lists = await list.findAll({
+      include: [{ all: true, nested: true }],
+    });
+    res.send(lists.map((list) => list.toJSON()));
+  } catch (e) {
+    next(e);
+  }
+});
+
+// end of testig ending points
+
+// // get details of a specified artwork
+// app.get("/artworks/:id", async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const artworkDetails = await artwork.findByPk(parseInt(id), {
+//       include: { model: bid },
+//     });
+//     console.log("details", artworkDetails.toJSON());
+//     res.status(200).send(artworkDetails.toJSON());
+//   } catch (e) {
+//     next(e);
+//   }
+// });
+// // increase amount of hearts of an artwork
+// app.patch("/artworks/:id/hearts/:h", async (req, res, next) => {
+//   try {
+//     const { id, h } = req.params;
+//     const updateArtwork = await artwork.findByPk(id);
+//     const hearts = await updateArtwork.update({ hearts: h });
+//     res.status(200).send(updateArtwork);
+//   } catch (e) {
+//     next(e);
+//   }
+// });
+// // create a bid
+// app.post("/artworks/:id/bid", authMiddleWare, async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const { email, amount, artworkId } = req.body;
+//     const newBid = await bid.create({
+//       email,
+//       amount,
+//       artworkId,
+//     });
+//     res.status(200).send(newBid.dataValues);
+//     console.log(newBid.dataValues);
+//   } catch (e) {
+//     next(e);
+//   }
+// });
+
+// app.post("/auction/:userId", authMiddleWare, async (req, res) => {
+//   const { title, imageUrl, minimumBid } = req.body;
+//   const { userId } = req.params;
+
+//   if (!title || !imageUrl || !minimumBid) {
+//     return res
+//       .status(400)
+//       .send("Please provide an title, imageUrl and a minimum bid");
+//   }
+//   try {
+//     const newArtwork = await artwork.create({
+//       title,
+//       userId,
+//       imageUrl,
+//       minimumBid,
+//     });
+//     res.status(201).send(newArtwork.dataValues);
+//   } catch (error) {
+//     if (error.name === "SequelizeUniqueConstraintError") {
+//       return res
+//         .status(400)
+//         .send({ message: "There is an existing account with this email" });
+//     }
+
+//     return res.status(400).send({ message: "Something went wrong, sorry" });
+//   }
+// });
+
+// // POST endpoint which requires a token for testing purposes, can be removed
+// app.post("/authorized_post_request", authMiddleWare, (req, res) => {
+//   // accessing user that was added to req by the auth middleware
+//   const user = req.user;
+//   // don't send back the password hash
+//   delete user.dataValues["password"];
+
+//   res.json({
+//     youPosted: {
+//       ...req.body,
+//     },
+//     userFoundWithToken: {
+//       ...user.dataValues,
+//     },
+//   });
+// });
 
 app.use("/", authRouter);
 

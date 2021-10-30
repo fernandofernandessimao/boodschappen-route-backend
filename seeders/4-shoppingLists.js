@@ -2,45 +2,41 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert("bids", [
+    await queryInterface.bulkInsert("shoppingLists", [
       {
-        email: "bidder1@bidder.com",
-        amount: 1010,
+        productId: 1,
+        listId: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
-        artworkId: 1,
       },
       {
-        email: "bidder2@bidder.com",
-        amount: 404,
+        productId: 2,
+        listId: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
-        artworkId: 1,
       },
       {
-        email: "bidder3@bidder.com",
-        amount: 2020,
+        productId: 3,
+        listId: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
-        artworkId: 2,
       },
       {
-        email: "bidder4@bidder.com",
-        amount: 505,
+        productId: 4,
+        listId: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
-        artworkId: 2,
       },
       {
-        email: "bidder5@bidder.com",
-        amount: 3030,
+        productId: 5,
+        listId: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
-        artworkId: 3,
       },
     ]);
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete("bids", null, {});
+    await queryInterface.bulkDelete("shoppingLists", null, {});
   },
 };
