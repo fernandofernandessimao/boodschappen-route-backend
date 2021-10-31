@@ -97,7 +97,13 @@ if (process.env.DELAY) {
 app.get("/products", async (req, res, next) => {
   try {
     const products = await product.findAll({
-      include: [{ all: true, nested: true }],
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: [
+        {
+          model: category,
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+      ],
     });
     res.send(products.map((product) => product.toJSON()));
   } catch (e) {
@@ -107,18 +113,43 @@ app.get("/products", async (req, res, next) => {
 
 app.get("/categories", async (req, res, next) => {
   try {
-    const categories = await category.findAll();
+    const categories = await category.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
     res.send(categories.map((category) => category.toJSON()));
   } catch (e) {
     next(e);
   }
 });
 
-app.get("/shoppinglists", async (req, res, next) => {
+app.get("/shoppinglists/:id", async (req, res, next) => {
   try {
+    const { id } = req.params;
     const shoppinglists = await shoppingList.findAll({
-      include: [{ all: true, nested: true }],
+      where: { listId: id },
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: {
+        model: product,
+        attributes: { exclude: ["id", "listId", "createdAt", "updatedAt"] },
+      },
     });
+    res.send(shoppinglists.map((shoppinglist) => shoppinglist.toJSON()));
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.get("/shoppinglists/", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const shoppinglists = await shoppingList.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: {
+        model: product,
+        attributes: { exclude: ["id", "listId", "createdAt", "updatedAt"] },
+      },
+    });
+    console.log("requesting shopping lists");
     res.send(shoppinglists.map((shoppinglist) => shoppinglist.toJSON()));
   } catch (e) {
     next(e);
@@ -128,7 +159,11 @@ app.get("/shoppinglists", async (req, res, next) => {
 app.get("/lists", async (req, res, next) => {
   try {
     const lists = await list.findAll({
-      include: [{ all: true, nested: true }],
+      include: {
+        model: product,
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        through: { attributes: ["quantity"] },
+      },
     });
     res.send(lists.map((list) => list.toJSON()));
   } catch (e) {
