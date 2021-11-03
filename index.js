@@ -105,7 +105,7 @@ app.get("/products", async (req, res, next) => {
         },
       ],
     });
-    res.send(products.map((product) => product.toJSON()));
+    res.status(200).send(products.map((product) => product.toJSON()));
   } catch (e) {
     next(e);
   }
@@ -116,7 +116,7 @@ app.get("/categories", async (req, res, next) => {
     const categories = await category.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
     });
-    res.send(categories.map((category) => category.toJSON()));
+    res.status(200).send(categories.map((category) => category.toJSON()));
   } catch (e) {
     next(e);
   }
@@ -133,7 +133,7 @@ app.get("/shoppinglists/:id", async (req, res, next) => {
         attributes: { exclude: ["id", "listId", "createdAt", "updatedAt"] },
       },
     });
-    res.send(shoppinglists.map((shoppinglist) => shoppinglist.toJSON()));
+    res.status(200).send(shoppinglists.map((shoppinglist) => shoppinglist.toJSON()));
   } catch (e) {
     next(e);
   }
@@ -148,10 +148,23 @@ app.get("/shoppinglists/", async (req, res, next) => {
         model: product,
         attributes: { exclude: ["id", "listId", "createdAt", "updatedAt"] },
       },
-    });
-    console.log("requesting shopping lists");
-    res.send(shoppinglists.map((shoppinglist) => shoppinglist.toJSON()));
+    });    
+    res.status(200).send(shoppinglists.map((shoppinglist) => shoppinglist.toJSON()));
   } catch (e) {
+    next(e);
+  }
+});
+
+app.patch("/shoppinglists/product/:id/:quantity", async (req, res, next) => {
+  try {
+    const { id, quantity } = req.params;
+    const updateShoppingList = await shoppingList.findByPk(id);
+    const newQuantity = await updateShoppingList.update({ quantity: quantity });
+    console.log(updateShoppingList.toJSON())
+    res.status(200).send(updateShoppingList);
+    
+  } catch (e) {
+    console.log("4");
     next(e);
   }
 });
@@ -162,10 +175,9 @@ app.get("/lists", async (req, res, next) => {
       include: {
         model: product,
         attributes: { exclude: ["createdAt", "updatedAt"] },
-        through: { attributes: ["quantity"] },
-      },
+        through: { attributes: ["id", "quantity"] },      },
     });
-    res.send(lists.map((list) => list.toJSON()));
+    res.status(200).send(lists.map((list) => list.toJSON()));
   } catch (e) {
     next(e);
   }
