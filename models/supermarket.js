@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         through: "supermarketLocations",
         foreignKey: "supermarketId",
       });
-      supermarket.belongsToMany(models.supermarketCategory, {
+      supermarket.belongsToMany(models.category, {
         through: "supermarketCategories",
         foreignKey: "supermarketId",
       });
