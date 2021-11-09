@@ -56,10 +56,16 @@ module.exports = {
         categoryId: 10,
         createdAt: new Date(),
         updatedAt: new Date(),
-      },
+      },      
       {
         supermarketId: 1,
         categoryId: 11,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        supermarketId: 1,
+        categoryId: 7,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

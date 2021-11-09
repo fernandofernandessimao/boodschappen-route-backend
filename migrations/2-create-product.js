@@ -21,10 +21,6 @@ module.exports = {
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
-      },     
-      price: {
-        type: Sequelize.DECIMAL,
-        allowNull: false,
       },
       position: {
         type: Sequelize.ARRAY(Sequelize.INTEGER),

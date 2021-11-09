@@ -1,6 +1,6 @@
 {
-  "name": "server-template",
-  "version": "1.0.0",
+  "name": "boodschappen-route",
+  "version": "0.1.0",
   "description": "Simple express server with sequelize, pg and jwts",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "jwt",
     "sequelize"
   ],
-  "author": "Rein Op 't Land",
+  "author": "Fernando Fernandes Simao",
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.0.1",

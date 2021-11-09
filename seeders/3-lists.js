@@ -4,8 +4,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert("lists", [
       {
-        userId: 1,
-        total: 0.0,
+        userId: 1,      
         createdAt: new Date(),
         updatedAt: new Date(),
       },

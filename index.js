@@ -4,7 +4,15 @@ const corsMiddleWare = require("cors");
 const { PORT } = require("./config/constants");
 const authRouter = require("./routers/auth");
 const authMiddleWare = require("./auth/middleware");
-const { category, product, list, shoppingList } = require("./models");
+const {
+  category,
+  product,
+  list,
+  productList,
+  supermarketCategory,
+} = require("./models");
+const Sequelize = require("sequelize");
+const { default: Axios } = require("axios");
 
 const app = express();
 /**
@@ -87,13 +95,7 @@ if (process.env.DELAY) {
   });
 }
 
-/**
- * Routes
- *
- * DEFINE YOUR ROUTES AFTER THIS MESSAGE (now that middlewares are configured)
- */
-
-// testing ending points
+// return all products
 app.get("/products", async (req, res, next) => {
   try {
     const products = await product.findAll({
@@ -111,7 +113,8 @@ app.get("/products", async (req, res, next) => {
   }
 });
 
-app.get("/categories", async (req, res, next) => {
+// return all categories
+app.get("/categories", authRouter, async (req, res, next) => {
   try {
     const categories = await category.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
@@ -122,62 +125,189 @@ app.get("/categories", async (req, res, next) => {
   }
 });
 
-app.get("/shoppinglists/:id", async (req, res, next) => {
+// delete productlist with specified id
+app.delete("/productlist/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const shoppinglists = await shoppingList.findAll({
+    const [deleteProductLists, deleteLists] = await Promise.all([
+      productList.findAll({ where: { listId: id } }),
+      list.findAll({ where: { id } }),
+    ]);
+
+    await deleteProductLists.forEach((p) => p.destroy());
+    await deleteLists.forEach((p) => p.destroy());
+    res.status(200).send({
+      message: `ALl productlists and lists with id ${id} were deleted`,
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// return all productlist with specified id
+app.get("/productlist/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const lists = await productList.findAll({
+      order: [["id", "ASC"]],
       where: { listId: id },
+      // attributes: ["productId", [Sequelize.fn("count", Sequelize.col("productId")), "count"]],
+      // group: ["productList.productId"],
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: {
+        model: product,
+        include: [list],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      },
+    });
+
+    const onlyProducts = lists.map((list) => list.product.dataValues);
+
+    // [{}, {}, {}, {}]
+
+    const productsWithQuantity = onlyProducts.reduce((acc, product) => {
+      // need to check if the new product is already in the array
+      // if he's not => add to array with quantity 1
+      // if he is in the array => +1 quantity
+
+      const isInArray = acc.find((p) => p.id === product.id);
+
+      if (isInArray) {
+        return acc.map((p) =>
+          p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
+        );
+      } else {
+        return [...acc, { ...product, quantity: 1 }];
+      }
+    }, []);
+
+    console.log(productsWithQuantity);
+
+    res.status(200).send(productsWithQuantity);
+  } catch (e) {
+    next(e);
+  }
+});
+
+// return all productlists
+app.get("/productlists/", async (req, res, next) => {
+  try {
+    const productlists = await productList.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
       include: {
         model: product,
         attributes: { exclude: ["id", "listId", "createdAt", "updatedAt"] },
       },
     });
-    res.status(200).send(shoppinglists.map((shoppinglist) => shoppinglist.toJSON()));
+
+    res.status(200).send(productlists);
   } catch (e) {
     next(e);
   }
 });
 
-app.get("/shoppinglists/", async (req, res, next) => {
+app.get("/supermarket/:id/categories", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const shoppinglists = await shoppingList.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      include: {
-        model: product,
-        attributes: { exclude: ["id", "listId", "createdAt", "updatedAt"] },
-      },
-    });    
-    res.status(200).send(shoppinglists.map((shoppinglist) => shoppinglist.toJSON()));
+    const listCategories = await supermarketCategory.findAll({
+      order: [["id", "ASC"]],
+      where: { supermarketId: id },
+      include: { model: category },
+    });
+
+    res.status(200).send(listCategories);
   } catch (e) {
     next(e);
   }
 });
 
-app.patch("/shoppinglists/product/:id/:quantity", async (req, res, next) => {
+app.patch("/productlist/:listId/:productId/:update", async (req, res, next) => {
+  const { listId, productId, update } = req.params;
   try {
-    const { id, quantity } = req.params;
-    const updateShoppingList = await shoppingList.findByPk(id);
-    const newQuantity = await updateShoppingList.update({ quantity: quantity });
-    console.log(updateShoppingList.toJSON())
-    res.status(200).send(updateShoppingList);
-    
+    // increase quantity by creating a new productList
+    if (update === "true") {
+      console.log("increasing");
+      const increaseQuantityProduct = await productList.create({
+        productId,
+        listId,
+      });
+
+      res.status(200).send(await updateProduct(listId, productId));
+    } else {
+      console.log("deleting");
+      const decreaseQuantityProduct = await productList.findOne({
+        where: { listId, productId },
+      });
+      await decreaseQuantityProduct.destroy();
+
+      res.status(200).send(await updateProduct(listId, productId));
+    }
+
+    // console.log(productsWithQuantity);
+
+    // res.status(200).send(productsWithQuantity);
   } catch (e) {
-    console.log("4");
     next(e);
   }
 });
 
-app.get("/lists", async (req, res, next) => {
+// return all lists
+app.get("/lists", authRouter, async (req, res, next) => {
   try {
     const lists = await list.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
       include: {
         model: product,
         attributes: { exclude: ["createdAt", "updatedAt"] },
-        through: { attributes: ["id", "quantity"] },      },
+        through: { attributes: ["id"] },
+      },
     });
     res.status(200).send(lists.map((list) => list.toJSON()));
+  } catch (e) {
+    next(e);
+  }
+});
+
+// return specified list
+app.get("/list/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const findList = await list.findByPk(id, {
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: {
+        model: product,
+        attributes: { exclude: ["createdAt", "updatedAt", "position"] },
+        through: { attributes: ["id"] },
+      },
+    });
+    res.status(200).send(findList.toJSON());
+  } catch (e) {
+    next(e);
+  }
+});
+
+// create a productlist
+app.post("/productlist/:user", async (req, res, next) => {
+  try {
+    const { myShoppingList } = req.body;
+    const { user } = req.params;
+    console.log("request", myShoppingList);
+    //creating a new list to associate to the user
+    const new_list = await list.create({
+      userId: user,
+      total: 0,
+    });
+    const list_id = new_list.dataValues.id;
+    // mapping the array to create a productlist for each of them
+    const createShoppingList = async () =>
+      myShoppingList.forEach((element) => {
+        productList.create({
+          productId: element.value,
+          listId: list_id,
+        });
+      });
+    createShoppingList();
+    res.status(200).send("createShoppingList");
   } catch (e) {
     next(e);
   }
@@ -278,3 +408,38 @@ app.use("/", authRouter);
 app.listen(PORT, () => {
   console.log(`Listening on port: ${PORT}`);
 });
+
+const updateProduct = async (listId, productId) => {
+  // logic must be here
+  const list = await productList.findAll({
+    where: { listId, productId },
+    attributes: { exclude: ["createdAt", "updatedAt"] },
+    include: {
+      model: product,
+      attributes: { exclude: ["listId", "createdAt", "updatedAt"] },
+    },
+  });
+
+  const onlyProducts = list.map((list) => list.product.dataValues);
+
+  // [{}, {}, {}, {}]
+
+  // reduce function always return an array with object(s) so in your thunk should access index 0 in case of just one object
+  const productsWithQuantity = onlyProducts.reduce((acc, product) => {
+    // need to check if the new product is already in the array
+    // if he's not => add to array with quantity 1
+    // if he is in the array => +1 quantity
+
+    const isInArray = acc.find((p) => p.id === product.id);
+
+    if (isInArray) {
+      return acc.map((p) =>
+        p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
+      );
+    } else {
+      return [...acc, { ...product, quantity: 1 }];
+    }
+  }, []);
+  console.log(productsWithQuantity.length);
+  return productsWithQuantity;
+};

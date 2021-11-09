@@ -3,6 +3,7 @@ const { Router } = require("express");
 const { toJWT, toData } = require("../auth/jwt");
 const authMiddleware = require("../auth/middleware");
 const User = require("../models/").user;
+const ShoppingList = require("../models").shoppinglist;
 const Artwork = require("../models/").artwork;
 const { SALT_ROUNDS } = require("../config/constants");
 
@@ -66,10 +67,22 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.get("/me", authMiddleware, async (req, res) => {
-  // don't send back the password hash
-  delete req.user.dataValues["password"];
-  res.status(200).send({ ...req.user.dataValues });
-});
+// router.get("/me", authMiddleware, async (req, res) => {
+//   // don't send back the password hash
+//   delete req.user.dataValues["password"];
+//   res.status(200).send({ ...req.user.dataValues });
+// });
+
+// router.post("/shoppinglist/:user", authMiddleware, async (req, res) => {
+//   try {
+//     const { shoppingList, userId } = req.body;
+//     console.log("userId", userId);
+//     console.log("request", shoppingList);
+//   } catch (e) {
+//     next(e);
+//   }
+
+//   res.status(200).send({ ...req.user.dataValues });
+// });
 
 module.exports = router;
