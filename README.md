@@ -1,142 +1,49 @@
-# Server template
+- **[ABOUT](#ABOUT)**
+- **[PROJECT](#PROJECT)**
+- **[LINKS](#LINKS)**
+- **[TECNOLOGIES](#TECNOLOGIES)**
+- **[INSTALLATION](#INSTALLATION)**
+- **[IMPORTANT](#IMPORTANT!!!)**
+- **[ENDPOINTS](#ENDPOINTS)**
 
-This is a simple server template to for my students to start projects quickly.
+# ABOUT ME
 
-## Table of contents:
-
-- **[Setup](#setup-how-to-use-this-template)**
-- **[Endpoints](#endpoints)**
-- **[Sample requests with axios](#sample-requests-with-axios)**
-- **[Sample requests with httpie](#sample-requests-with-httpie)**
-- **[History of this project (pullrequests)](#history-of-this-project)**
-
-## SETUP How to use this template
-
-1. Create a new project based on this template using the `Use this template` button
-
-![HOW_TO_USE](https://user-images.githubusercontent.com/20372832/77003323-70966180-695d-11ea-8abe-b362d57135f3.gif)
-
-2. Clone the app
-
-```
-git clone git@github.com:YOUR_GITHUB_NAME/YOUR_PROJECT_NAME.git
-```
-
-3. cd into your project
-
-```
-cd YOUR_PROJECT_NAME
-```
-
-4. install dependencies
-
-```
-npm install
-```
-
-5. Configure your database in `config/config.json`
-
-Default config is setup for usage with an ElephantSQL database instance, you need to provide the DB Url on the "url" key of the config.json file, key development.
-
-```json
-// config/config.json
-{
-  "development": {
-    "url": "YOUR_ELEPHANTSQL_URL_HERE",
-    "dialect": "postgres",
-    "operatorsAliases": "0"
-  },
-}
-```
+Hi, I'am Fernando. Curious by nature and eager to learn. Knowledge it the most valuable asset to me. I love to do things which require thinking and creativity, and programming is one of them. As a frehsly Full Stack Developer graduated, I'm looking forward to explore both backend and frontend programming. 
 
 
-If planning to use this template with a docker database the config object should be changed to:
+# PROJECT Shopping list route 
 
-```json
-// config/config.json
-{
-  "development": {
-    "username": "postgres",
-    "password": "secret",
-    "database": "YOUR_PROJECT_NAME_HERE_development",
-    "host": "localhost",
-    "dialect": "postgres",
-    "operatorsAliases": "0"
-  }
-}
-```
+First portfolio project for Full Stack Developer course. This actual version is a conceptual idea, as it needs real data and models from supermarkets or stores. Although conceptual, it can be applied (and actually it is) to any store and warehouse, both for workers and employees. 
+As I come from a game programming background, I thought I could create something with a searching algorithm. The true is I got too excited and didn't think all the way through and the actual app is a really simplified version of what I have envisioned. 
 
-And you must revert the changes on this line in models/index.js: https://github.com/Codaisseur/express-template/commit/ada7711c8b19c8f240bc61f94743213efe4a77d2#diff-18c449caa39363f82bacb4f7489e7783L15
+# LINKS
 
+Deployed backend version at HEROKU: https://shoppinglist-route.herokuapp.com/
 
-6. Create database, run migrations & seed data
+Deployed frontend version at NETLIFY: https://eager-swartz-9988d6.netlify.app/
 
-`package.json` contains a script for this
+Taskboard: https://github.com/users/fernandofernandessimao/projects/1
 
-```bash
-npm run initdev
-```
+Wireframe conception: https://wireframepro.mockflow.com/view/MVDs12Mz4h#/page/7afbcbdf32054dd9a35100b8339aab5e
 
-Or run the commands seperately
+Data model: https://dbdiagram.io/d/617bfc4bfa17df5ea6752412
 
-```bash
-npx sequelize-cli db:migrate
-npx sequelize-cli db:seed:all
-```
+Frontend repository: https://github.com/fernandofernandessimao/boodschappen-route-frontend
 
-7. start server with `nodemon` (recommended for development)
+# TECNOLOGIES 
 
-```
-npm run dev
-```
+Backend: Express, Sequelize, PostgreSQL, Node, REST
+Frontend: React, Redux, Axios, Leaflet
 
-8. or start normally
+# INSTALLATION
 
-```
-npm start
-```
+Download both backend and frontend repositories. At frontend repository, go to /store/shoppingList/actions.js line 9, and change the URL to https://localhost:4000. Do the same to the line 1 at /src/config/constants.js. Install the dependecies packages with npm i for both repositories. and you are good to run. At the terminal, type npm start.
 
-## Endpoints
+# IMPORTANT!!!
 
-| Method | Path                       | Purpose                             | required parameters   | auth |
-| ------ | -------------------------- | ----------------------------------- | --------------------- | ---- |
-| GET    | '/'                        | Test if your server is running      | none                  | no   |
-| POST   | '/echo'                    | Test POST requests                  | none                  | no   |
-| POST   | '/signup'                  | Create a new user and get a token   | email, name, password | no   |
-| POST   | '/login'                   | Get a token with email & password   | email, password       | no   |
-| GET    | '/me'                      | Get information of this user        | none                  | yes  |
-| POST   | '/authorized_post_request' | Test POST requests (token required) | none                  | yes  |
+Create in your database and set it up at /config/config.json line 3. If you don't change it, everyone (including me) is gonna use the same data base and
+mess it up.
 
-## Sample requests with axios
+# ENDPOINTS
 
-To demo making request to this server, some small script are included that make requests using `axios`
-
-The scripts can be found in [/sampleRequests](./sampleRequests)
-
-1. Make sure to follow the the setup in this readme first
-2. cd sampleRequests
-3. Run example requests
-
-```
-node hello.js
-node echo.js
-node signup.js
-node login.js
-node me.js
-node authorizedPost.js
-```
-
-## Sample requests with httpie
-
-To demo making request to this server, bash commands are included that make requests using `httpie`
-
-They can found in [./sampleRequests/httpie.md](./sampleRequests/httpie.md)
-
-## History of this project
-
-- [Setup of the server](https://github.com/Codaisseur/express-template/commit/cd2f790fbab6c561300163466a074fd09a35f704)
-- [Adding a README](https://github.com/Codaisseur/express-template/pull/1)
-- [Setting up the Database](https://github.com/Codaisseur/express-template/pull/2)
-- [Signup, Login & auth middleware](https://github.com/Codaisseur/express-template/pull/3)
-- [Configure cors](https://github.com/Codaisseur/express-template/pull/4)
-- [Seed using models & add delay middleware](https://github.com/Codaisseur/express-template/pull/5)
+  All endpoints require authentication. So you need to use a header sending a valid token.
