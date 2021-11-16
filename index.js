@@ -252,9 +252,11 @@ app.patch("/productlist/:listId/:productId/:update", async (req, res, next) => {
 });
 
 // return all lists
-app.get("/lists", authRouter, async (req, res, next) => {
+app.get("/lists/:userId", authRouter, async (req, res, next) => {
+  const { userId } = req.params;
   try {
     const lists = await list.findAll({
+      where: { userId },
       attributes: { exclude: ["createdAt", "updatedAt"] },
       include: {
         model: product,
