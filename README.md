@@ -8,7 +8,7 @@
 
 # ABOUT ME
 
-Hi, I'am Fernando. Curious by nature and eager to learn. Knowledge it the most valuable asset to me. I love to do things which require thinking and creativity, and programming is one of them. As a frehsly Full Stack Developer graduated, I'm looking forward to explore both backend and frontend programming. 
+Curious by nature and eager to learn. Knowledge it the most valuable asset to me. I love to do things which require thinking and creativity, and programming is one of them. As a frehsly Full Stack Developer graduated, I'm looking forward to explore both backend and frontend programming. 
 
 
 # PROJECT Shopping list route 
